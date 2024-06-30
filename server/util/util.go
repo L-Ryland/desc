@@ -73,7 +73,7 @@ func DecodeJson(j string, item interface{}) {
 	}
 }
 func EncodeJson(item interface{}) string {
-	j, err := json.Marshal(item)
+	j, err := json.MarshalIndent(item, "", " ")
 	if err != nil {
 		panic(Errorf("encode json %s failed", j).WithCause(err))
 	}

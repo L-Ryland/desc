@@ -4,9 +4,11 @@ import (
 	"context"
 	"server/util"
 
+	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"google.golang.org/grpc/codes"
 )
 
@@ -32,6 +34,12 @@ func init() {
 
 func (DBUser) initTable() {
 	userdb = db.Collection("user")
+	indexModel := mongo.IndexModel{Keys: bson.D{{"name", 1}}, Options: options.Index().SetUnique(true)}
+	indexName, err := userdb.Indexes().CreateOne(context.TODO(), indexModel)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+	logrus.Println("Created index: ", indexName)
 }
 
 // 插入 user 表数据

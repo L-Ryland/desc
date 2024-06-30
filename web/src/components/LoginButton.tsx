@@ -1,6 +1,6 @@
-import { Box, Button, Modal, TextField, Typography } from "@mui/material"
-import { LoadingButton } from "@mui/lab"
-import { api } from "../network/api"
+import { Box, Button, Modal, TextField, Typography } from "@mui/material";
+import { LoadingButton } from "@mui/lab";
+import { api } from "../network/api";
 import { useCallback, useState } from "react";
 
 const dialogStyle = {
@@ -14,7 +14,7 @@ const dialogStyle = {
   boxShadow: 24,
   p: 4,
   display: "flex",
-  flexDirection: "column",  
+  flexDirection: "column",
 };
 export const LoginButton = () => {
   const [open, setOpen] = useState(false);
@@ -23,20 +23,18 @@ export const LoginButton = () => {
   const [password, setPassword] = useState<string>();
 
   const handleLogin = useCallback(async () => {
-    if (!username || !password) return
-    setLoading(true)
+    if (!username || !password) return;
+    setLoading(true);
     try {
-      const { data } = await api.post('/login', { Username: username, Password: password })
-      localStorage.setItem("User", JSON.stringify(data))
-      localStorage.setItem("isLoggedIn", "true")
-      window.location.reload()
-    } finally{
-      setLoading(false) 
-      setOpen(false)
+      await api.post('/login', { Username: username, Password: password });
+      window.location.reload();
+    } finally {
+      setLoading(false);
+      setOpen(false);
     }
-  }, [username, password])
-  
-  return ( 
+  }, [username, password]);
+
+  return (
     <>
       <Button variant="contained" color="secondary" onClick={() => setOpen(true)}>Login</Button>
       <Modal open={open}>
@@ -52,4 +50,4 @@ export const LoginButton = () => {
       </Modal>
     </>
   );
-}
+};

@@ -1,35 +1,56 @@
 import * as React from 'react';
-import { AppBar as MuiAppBar, Box, Toolbar, IconButton, Typography, Menu, Container, Avatar, Button, Tooltip, MenuItem, Link } from "@mui/material"
+import { AppBar as MuiAppBar, Box, Toolbar, IconButton, Typography, Menu, Container, Avatar, Button, Tooltip, MenuItem, Link } from "@mui/material";
 // import { Menu as MenuIcon } from "@mui/icons-material"
 import MenuIcon from '@mui/icons-material/Menu';
-import { LoginButton } from "./LoginButton"
-import { useState } from 'react';
-import { api } from "../network/api"
+import { LoginButton } from "./LoginButton";
+import { useCallback, useMemo, useState } from 'react';
+import { api } from "../network/api";
 import { useNavigate } from 'react-router-dom';
 
 const pages = ['Products', 'Pricing', 'Blog'];
 const settings = [
-  // 'Profile', 
-  // 'Account', 
-  // 'Dashboard', 
+  // 'Profile',
+  // 'Account',
+  // 'Dashboard',
   'Logout'
 ];
 
+const checkAuth = async () => {
+  try {
+    const { data } = await api.get("/auth");
+    sessionStorage.setItem("User", JSON.stringify(data));
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
+interface UserData {
+  user: string;
+  role: string;
+}
 export const AppBar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [username, setUsername] = useState<string>();
+  const [loggedInUser, setLoggedInUser] = useState<UserData>();
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
 
   const navigate = useNavigate();
-  React.useEffect(() => {
-    const loggedIn = sessionStorage.getItem('isLoggedIn');
-    if (loggedIn === 'true') {
-      setIsLoggedIn(true);
+
+  const reactCheckAuth = useCallback(async () => {
+    const isLoggedIn = await checkAuth();
+    setIsLoggedIn(isLoggedIn);
+    if (isLoggedIn) {
       const userData = sessionStorage.getItem('User');
-      setUsername(JSON.parse(userData || '{}')?.name);
+      setLoggedInUser(JSON.parse(userData || '{}'));
     }
-  }, [])
+  }, []);
+  React.useEffect(() => {
+    reactCheckAuth();
+  }, [reactCheckAuth]);
+  const isAdmin = useMemo(() => {
+    const _loggedInUser = loggedInUser;
+    return !!loggedInUser && loggedInUser.role === 'admin';
+  }, [loggedInUser]);
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -39,27 +60,25 @@ export const AppBar = () => {
   };
 
   const handleCloseNavMenu = (e) => {
-    debugger
     setAnchorElNav(null);
   };
   const handlePageMenuAction = (page: string) => {
-    debugger
     if (page) {
-      navigate(page)
+      navigate(page);
     }
-  }
+  };
 
   const handleCloseUserMenu = () => {
   };
   const handleSettingsMenuAction = async (setting: string) => {
     if (setting === 'Logout') {
-      await api.post('/logout')
+      await api.post('/logout');
       sessionStorage.removeItem('isLoggedIn');
       sessionStorage.removeItem('User');
       setAnchorElUser(null);
       window.location.reload();
     }
-  }
+  };
 
   return (
     <MuiAppBar position="static">
@@ -153,9 +172,10 @@ export const AppBar = () => {
           <Box sx={{ flexGrow: 0 }}>
             {isLoggedIn ? (
               <>
+                {isAdmin && <UserManageButton />}
                 <Tooltip title="Open settings">
                   <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                    <Avatar alt={username} src="/static/images/avatar/2.jpg" />
+                    <Avatar alt={loggedInUser?.user} src="/static/images/avatar/2.jpg" />
                   </IconButton>
                 </Tooltip>
                 <Menu
@@ -180,11 +200,19 @@ export const AppBar = () => {
                     </MenuItem>
                   ))}
                 </Menu>
-              </> 
-            ) : <LoginButton /> }
+              </>
+            ) : <LoginButton />}
           </Box>
         </Toolbar>
       </Container>
     </MuiAppBar>
   );
-}
+};
+
+const UserManageButton = () => {
+  return (
+    <Button variant="text" sx={{ mr: 2, color: "white" }}>
+      <Link href={"/users"} color="inherit" underline="none">用戶管理</Link>
+    </Button>
+  );
+};

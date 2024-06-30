@@ -16,6 +16,7 @@ func NewService(router *mux.Router) {
 	router.HandleFunc(pathPerfix+"/register", usersys.HandleRegister).Methods(http.MethodPost)
 	router.HandleFunc(pathPerfix+"/login", usersys.HandleLogin).Methods(http.MethodPost)
 	router.HandleFunc(pathPerfix+"/logout", usersys.HandleLogout).Methods(http.MethodPost)
+	router.HandleFunc(pathPerfix+"/auth", usersys.HandleGetAuth).Methods(http.MethodGet)
 	router.HandleFunc(pathPerfix+"/user", usersys.HandleGetUsers).Methods(http.MethodGet)
 	router.HandleFunc(pathPerfix+"/user", usersys.HandleAddUser).Methods(http.MethodPost)
 	router.HandleFunc(pathPerfix+"/user/{id}", usersys.HandleRemoveUser).Methods(http.MethodDelete)

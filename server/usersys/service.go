@@ -119,6 +119,31 @@ func HandleLogout(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+func HandleGetAuth(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+	if user, role, err := util.GetUser(w, r); err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		resp := map[string]any{"success": false, "msg": "not authorized"}
+		fmt.Fprint(w, util.EncodeJson(resp))
+	} else {
+		logrus.Println("get auth:", user, role)
+		role := func() string {
+			if role == util.RoleAdmin {
+				return "admin"
+			} else if role == util.RolePlayer {
+				return "player"
+			} else {
+				return "guest"
+			}
+		}()
+		resp := map[string]any{"user": user, "role": role}
+		fmt.Fprint(w, util.EncodeJson(resp))
+	}
+}
+
 func HandleGetUsers(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		w.WriteHeader(http.StatusMethodNotAllowed)
