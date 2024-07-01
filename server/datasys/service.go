@@ -163,11 +163,11 @@ func HandleAddTag(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// _, role, err := util.GetUser(w, r)
-	// if err != nil {
-	// 	logrus.Error(util.Errorf("get user failed").WithCause(err))
-	// 	return
-	// }
+	_, _, err := util.GetUser(w, r)
+	if err != nil {
+		logrus.Error(util.Errorf("get user failed").WithCause(err))
+		return
+	}
 	// if role < util.RoleManager {
 	// 	w.WriteHeader(http.StatusForbidden)
 	// 	return
