@@ -24,3 +24,12 @@
 **/yarn-error.log*
 
 **/config_backup.tsx
+# Devenv
+.devenv*
+devenv.local.nix
+
+# direnv
+.direnv
+
+# pre-commit
+.pre-commit-config.yaml
